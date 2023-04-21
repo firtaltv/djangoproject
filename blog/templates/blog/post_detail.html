@@ -2,8 +2,8 @@
 {% block title %}Post detail{% endblock %}
 {% block content %}
 <h1>Post detail</h1>
-        <h2>{{ post_detail.title }}</h2><br>
-        {{ post_detail.text }}<br>
-        {{ post_detail.author.email }}
-        <a href="{% url 'post_delete' post_detail.id %}"><h2>Delete Post</h2></a><br>
+        <h2>{{ post.title }}</h2><br>
+        {{ post.text }}<br>
+        {{ post.author.email }}
+        <a href="{% url 'post_delete' post.id %}"><h2>Delete Post</h2></a><br>
 {% endblock %}

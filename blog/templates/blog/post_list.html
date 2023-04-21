@@ -5,6 +5,8 @@
     {% for post in posts %}
          <a href="{% url 'post_detail' post.id %}"><h2>{{ post.title }}</h2></a><br>
         {{ post.text }}<br>
-        {{ post.author.email }}
+        {{ post.author.email }}<br>
+        Likes: {{ post.like }}
+        <a href="{% url 'post_like' post.id %}"><h2>Like</h2></a><br>
     {% endfor %}
 {% endblock %}
