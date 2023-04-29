@@ -10,6 +10,7 @@ class Post(models.Model):
     published_date = models.DateTimeField(default=timezone.now)
     created_date = models.DateTimeField(null=True, blank=True)
     like = models.IntegerField(default=0)
+    dislike = models.IntegerField(default=0)
 
     def publish(self):
         self.published_date = timezone.now()
@@ -21,4 +22,9 @@ class Post(models.Model):
 
 class Like(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-    post = models.ForeignKey(Post, on_delete=models.CASCADE, related_name='post')
+    post = models.ForeignKey(Post, on_delete=models.CASCADE, related_name='post_like')
+
+
+class Dislike(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    post = models.ForeignKey(Post, on_delete=models.CASCADE, related_name='post_dislike')

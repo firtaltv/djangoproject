@@ -1,8 +1,8 @@
 from rest_framework.generics import (CreateAPIView, DestroyAPIView,
                                      ListAPIView, RetrieveAPIView,
                                      UpdateAPIView, get_object_or_404,)
-from django.shortcuts import render, redirect, reverse
-from .models import Post, Like
+from django.shortcuts import redirect
+from .models import Post, Like, Dislike
 from users.models import User
 from .serializers import PostSerializer
 from rest_framework.permissions import IsAuthenticated
@@ -23,11 +23,44 @@ class PostListAPIView(ListAPIView):
 
 def post_like(request, pk):
     post_inst = Post.objects.get(pk=pk)
-    qs = Like.objects.filter(post__pk=pk, user__pk=request.user.pk)
-    if not qs.exists():
+    qs_like = Like.objects.filter(post__pk=pk, user__pk=request.user.pk)
+    qs_dislike = Dislike.objects.filter(post__pk=pk, user__pk=request.user.pk)
+    if not qs_like.exists() and not qs_dislike.exists():
         post_inst.like += 1
         post_inst.save()
         Like.objects.create(
+            post=post_inst,
+            user=User.objects.get(pk=request.user.pk)
+        )
+    if qs_dislike.exists():
+        post_inst.dislike -= 1
+        post_inst.like += 1
+        post_inst.save()
+        qs_dislike.delete()
+        Like.objects.create(
+            post=post_inst,
+            user=User.objects.get(pk=request.user.pk)
+        )
+    return redirect('post_list')
+
+
+def post_dislike(request, pk):
+    post_inst = Post.objects.get(pk=pk)
+    qs_like = Like.objects.filter(post__pk=pk, user__pk=request.user.pk)
+    qs_dislike = Dislike.objects.filter(post__pk=pk, user__pk=request.user.pk)
+    if not qs_like.exists() and not qs_dislike.exists():
+        post_inst.dislike += 1
+        post_inst.save()
+        Dislike.objects.create(
+            post=post_inst,
+            user=User.objects.get(pk=request.user.pk)
+        )
+    if qs_like.exists():
+        post_inst.like -= 1
+        post_inst.dislike += 1
+        post_inst.save()
+        qs_like.delete()
+        Dislike.objects.create(
             post=post_inst,
             user=User.objects.get(pk=request.user.pk)
         )

@@ -6,7 +6,8 @@
          <a href="{% url 'post_detail' post.id %}"><h2>{{ post.title }}</h2></a><br>
         {{ post.text }}<br>
         {{ post.author.email }}<br>
-        Likes: {{ post.like }}
-        <a href="{% url 'post_like' post.id %}"><h2>Like</h2></a><br>
+        Likes: {{ post.like }}   Dislikes: {{ post.dislike }}
+        <a href="{% url 'post_like' post.id %}"><p>Like</p></a>
+        <a href="{% url 'post_dislike' post.id %}"><p>Dislike</p></a><br>
     {% endfor %}
 {% endblock %}
