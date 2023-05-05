@@ -17,6 +17,7 @@ class Snippets(models.Model):
     owner = models.ForeignKey(User, on_delete=models.CASCADE, related_name='snippet')
     created = models.DateTimeField(auto_now_add=True)
     title = models.CharField(max_length=256, blank=True, default="")
+    highlighted = models.TextField(default="")
     code = models.TextField()
     language = models.CharField(choices=LANGUAGE_CHOICES, default="python", max_length=256)
     style = models.CharField(choices=STYLE_CHOICES, default="igor", max_length=256)

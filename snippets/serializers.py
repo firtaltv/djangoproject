@@ -1,5 +1,6 @@
 from rest_framework import serializers
 from .models import Snippets, LANGUAGE_CHOICES, STYLE_CHOICES
+from users.models import User
 
 
 class SnippetSerializer(serializers.Serializer):
@@ -21,3 +22,14 @@ class SnippetSerializer(serializers.Serializer):
         instance.lineos = validated_data.get('lineos', instance.lineos)
         instance.save()
         return instance
+
+
+class UserSerializer(serializers.ModelSerializer):
+    snippets = serializers.PrimaryKeyRelatedField(
+        many=True,
+        queryset=Snippets.objects.all()
+    )
+
+    class Meta:
+        model = User
+        fields = ['id', 'username', 'snippets']
