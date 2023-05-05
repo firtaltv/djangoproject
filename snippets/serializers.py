@@ -3,33 +3,22 @@ from .models import Snippets, LANGUAGE_CHOICES, STYLE_CHOICES
 from users.models import User
 
 
-class SnippetSerializer(serializers.Serializer):
-    id = serializers.IntegerField(read_only=True)
-    title = serializers.CharField(required=False, allow_blank=True, max_length=256)
-    code = serializers.CharField(style={'base_template': 'textarea.html'})
-    language = serializers.ChoiceField(choices=LANGUAGE_CHOICES, default='python')
-    style = serializers.ChoiceField(choices=STYLE_CHOICES, default='igor')
-    lineos = serializers.BooleanField(required=False)
+class SnippetSerializer(serializers.HyperlinkedModelSerializer):
+    owner = serializers.ReadOnlyField(source='owner.username')
+    highlight = serializers.HyperlinkedIdentityField(view_name='snippet_highlight', format='html')
 
-    def create(self, validated_data):
-        return Snippets.objects.create(**validated_data)
-
-    def update(self, instance, validated_data):
-        instance.title = validated_data.get('title', instance.title)
-        instance.code = validated_data.get('code', instance.code)
-        instance.language = validated_data.get('language', instance.language)
-        instance.style = validated_data.get('style', instance.style)
-        instance.lineos = validated_data.get('lineos', instance.lineos)
-        instance.save()
-        return instance
+    class Meta:
+        model = Snippets
+        fields = ['url', 'id', 'highlight', 'owner', 'title', 'code', 'lineos', 'language', 'style', 'created']
 
 
-class UserSerializer(serializers.ModelSerializer):
-    snippets = serializers.PrimaryKeyRelatedField(
+class UserSerializer(serializers.HyperlinkedModelSerializer):
+    snippets = serializers.HyperlinkedRelatedField(
         many=True,
-        queryset=Snippets.objects.all()
+        view_name='snippet_detail',
+        read_only=True
     )
 
     class Meta:
         model = User
-        fields = ['id', 'username', 'snippets']
+        fields = ['url', 'id', 'username', 'snippets']

@@ -8,49 +8,33 @@ from rest_framework.generics import (
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from .permissions import IsOwnerOrReadOnly
 from users.models import User
+from rest_framework.viewsets import ReadOnlyModelViewSet, ModelViewSet
 
 from .models import Snippets
 from rest_framework.renderers import StaticHTMLRenderer
 from .serializers import SnippetSerializer, UserSerializer
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view, action
 from rest_framework.response import Response
 from rest_framework.reverse import reverse
 
 
-class SnippetListCreateAPIView(ListCreateAPIView):
+class SnippetViewSet(ModelViewSet):
     queryset = Snippets.objects.all()
     serializer_class = SnippetSerializer
-    permission_classes = [IsAuthenticatedOrReadOnly, ]
+    permission_classes = [IsAuthenticatedOrReadOnly, IsOwnerOrReadOnly]
 
     def perform_create(self, serializer):
         serializer.save(owner=self.request.user)
 
-
-class SnippetDetailAPIView(RetrieveUpdateDestroyAPIView):
-    queryset = Snippets.objects.all()
-    serializer_class = SnippetSerializer
-    permission_classes = [IsAuthenticatedOrReadOnly,
-                          IsOwnerOrReadOnly]
+    @action(detail=True, renderer_classes=[StaticHTMLRenderer])
+    def highlight(self, request, *args, **kwargs):
+        snippet = self.get_object()
+        return Response(snippet.highlighted)
 
 
-class UserListAPIView(ListAPIView):
+class UserViewSet(ReadOnlyModelViewSet):
     queryset = User.objects.all()
     serializer_class = UserSerializer
-
-
-class UserDetailAPIView(RetrieveAPIView):
-    queryset = User.objects.all()
-    serializer_class = UserSerializer
-
-
-@api_view(['GET'])
-def api_root(request, format=None):
-    return Response(
-        {
-            'users': reverse('user_snippets_list', request=request, format=format),
-            'snippets': reverse('snippets_list', request=request, format=format)
-        }
-    )
 
 
 class SnippetHighlight(GenericAPIView):
